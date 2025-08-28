@@ -20,7 +20,11 @@ func Config() {
 		panic(err)
 	}
 
-	defer db.Close()
+	defer func() {
+		if err := db.Close(); err != nil {
+			log.Printf("failed to close database: %v", err)
+		}
+	}()
 
 	router := mux.NewRouter()
 	RegisterRoutes(router, db)
