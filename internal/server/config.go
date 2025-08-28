@@ -14,10 +14,12 @@ import (
 )
 
 func Config() {
-	db, err := sql.Open("postgres", "postgres://postgres:T@skM@nagerP@stgresDb@127.0.0.1:5432/postgres?sslmode=disable")
+	connectionString := "postgres://postgres:T@skM@nagerP@stgresDb@127.0.0.1:5432/postgres?sslmode=disable"
+	db, err := sql.Open("postgres", connectionString)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
+
 	defer db.Close()
 
 	router := mux.NewRouter()
