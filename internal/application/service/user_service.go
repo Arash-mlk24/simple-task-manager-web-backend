@@ -5,6 +5,7 @@ import (
 	"github.com/Arash-mlk24/simple-task-manager-web-backend/internal/application/dto"
 	"github.com/Arash-mlk24/simple-task-manager-web-backend/internal/core/entity"
 	"github.com/Arash-mlk24/simple-task-manager-web-backend/internal/infrastructure/repository"
+	"github.com/Arash-mlk24/simple-task-manager-web-backend/pkg/utils"
 )
 
 type UserService interface {
@@ -22,11 +23,15 @@ func NewUserService(repository repository.UserRepository) UserService {
 }
 
 func (service *userService) Register(ctx context.Context, request dto.CreateUserRequest) (*dto.UserResponse, error) {
+	hashedPassword, err := utils.HashPassword(request.Password)
+	if err != nil {
+		return nil, err
+	}
+
 	user := &entity.User{
 		Username: request.Username,
 		Email:    request.Email,
-		Password: request.Password,
-		//Password: HashPassword(request.Password), // TODO: hash properly
+		Password: hashedPassword,
 	}
 
 	savedUser, err := service.repository.Create(ctx, user)

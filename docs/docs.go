@@ -93,7 +93,7 @@ const docTemplate = `{
         },
         "/users/{id}": {
             "get": {
-                "description": "Get a single user by their ID",
+                "description": "Get a single user by their Id",
                 "consumes": [
                     "application/json"
                 ],
@@ -103,11 +103,11 @@ const docTemplate = `{
                 "tags": [
                     "users"
                 ],
-                "summary": "Get user by ID",
+                "summary": "Get user by Id",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "User ID",
+                        "description": "User Id",
                         "name": "id",
                         "in": "path",
                         "required": true

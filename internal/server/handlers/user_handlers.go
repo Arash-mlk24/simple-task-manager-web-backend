@@ -48,12 +48,12 @@ func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 
 // GetUser
 //
-// @Summary Get user by ID
-// @Description Get a single user by their ID
+// @Summary Get user by Id
+// @Description Get a single user by their Id
 // @Tags users
 // @Accept json
 // @Produce json
-// @Param id path int true "User ID"
+// @Param id path int true "User Id"
 // @Success 200 {object} dto.UserResponse
 // @Failure 404 {string} string "User not found"
 // @Router /users/{id} [get]
@@ -61,7 +61,7 @@ func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 	idStr := mux.Vars(r)["id"]
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
-		utils.RespondError(w, http.StatusBadRequest, "Invalid user ID")
+		utils.RespondError(w, http.StatusBadRequest, "Invalid user Id")
 		return
 	}
 

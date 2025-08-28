@@ -25,7 +25,7 @@ func (repository *userRepository) Create(ctx context.Context, user *entity.User)
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	return user, nil // ID and other DB-generated fields are already populated
+	return user, nil // Id and other DB-generated fields are already populated
 }
 
 func (repository *userRepository) GetByID(ctx context.Context, id int64) (*entity.User, error) {

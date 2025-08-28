@@ -15,7 +15,13 @@ func Config() *gorm.DB {
 	}
 
 	// Auto-migrate your entities
-	err = db.AutoMigrate(&entity.User{})
+	err = db.AutoMigrate(
+		&entity.Collection{},
+		&entity.Tag{},
+		&entity.Task{},
+		&entity.User{},
+	)
+
 	if err != nil {
 		log.Fatal("Failed to migrate database:", err)
 	}
