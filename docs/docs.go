@@ -93,7 +93,7 @@ const docTemplate = `{
         },
         "/users/{id}": {
             "get": {
-                "description": "Get a single user by their Id",
+                "description": "Get a single user by their id",
                 "consumes": [
                     "application/json"
                 ],
@@ -103,11 +103,11 @@ const docTemplate = `{
                 "tags": [
                     "users"
                 ],
-                "summary": "Get user by Id",
+                "summary": "Get user by id",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "User Id",
+                        "type": "string",
+                        "description": "User id",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -115,15 +115,21 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "ApiResponse wrapping UserResponse",
                         "schema": {
-                            "$ref": "#/definitions/dto.UserResponse"
+                            "$ref": "#/definitions/dto.DocsApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid UUID",
+                        "schema": {
+                            "$ref": "#/definitions/dto.DocsApiResponse"
                         }
                     },
                     "404": {
                         "description": "User not found",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/dto.DocsApiResponse"
                         }
                     }
                 }
@@ -131,6 +137,17 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "dto.ApiError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.CreateUserRequest": {
             "type": "object",
             "properties": {
@@ -145,6 +162,18 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.DocsApiResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "$ref": "#/definitions/dto.ApiError"
+                },
+                "hasError": {
+                    "type": "boolean"
+                },
+                "result": {}
+            }
+        },
         "dto.UserResponse": {
             "type": "object",
             "properties": {
@@ -153,8 +182,8 @@ const docTemplate = `{
                     "example": "arash.mros@gmail.com"
                 },
                 "id": {
-                    "type": "integer",
-                    "example": 1
+                    "type": "string",
+                    "example": "8420e01d-1a8a-471e-9c36-102163aed978"
                 },
                 "username": {
                     "type": "string",

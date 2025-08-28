@@ -15,8 +15,3 @@ func RespondJSON(w http.ResponseWriter, status int, payload any) {
 		log.Println("JSON encode error:", err)
 	}
 }
-
-// RespondError writes an error response in JSON format
-func RespondError(w http.ResponseWriter, status int, message string) {
-	RespondJSON(w, status, map[string]string{"error": message})
-}

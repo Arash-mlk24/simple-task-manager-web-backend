@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 	"github.com/Arash-mlk24/simple-task-manager-web-backend/internal/application/dto"
 	"github.com/Arash-mlk24/simple-task-manager-web-backend/internal/application/service"
+	"github.com/Arash-mlk24/simple-task-manager-web-backend/internal/application/service_errors"
 	"github.com/Arash-mlk24/simple-task-manager-web-backend/pkg/utils"
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"net/http"
-	"strconv"
 )
 
 type UserHandler struct {
@@ -33,13 +34,13 @@ func NewHandler(service service.UserService) *UserHandler {
 func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 	var req dto.CreateUserRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		utils.RespondError(w, http.StatusBadRequest, err.Error())
+		utils.RespondJSON(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	user, err := h.service.Register(r.Context(), req)
 	if err != nil {
-		utils.RespondError(w, http.StatusInternalServerError, err.Error())
+		utils.RespondJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -48,30 +49,35 @@ func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 
 // GetUser
 //
-// @Summary Get user by Id
-// @Description Get a single user by their Id
+// @Summary Get user by id
+// @Description Get a single user by their id
 // @Tags users
 // @Accept json
 // @Produce json
-// @Param id path int true "User Id"
-// @Success 200 {object} dto.UserResponse
-// @Failure 404 {string} string "User not found"
+// @Param id path string true "User id"
+// @Success 200 {object} dto.DocsApiResponse "ApiResponse wrapping UserResponse"
+// @Failure 400 {object} dto.DocsApiResponse "Invalid UUID"
+// @Failure 404 {object} dto.DocsApiResponse "User not found"
 // @Router /users/{id} [get]
 func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 	idStr := mux.Vars(r)["id"]
-	id, err := strconv.ParseInt(idStr, 10, 64)
+	id, err := uuid.Parse(idStr)
 	if err != nil {
-		utils.RespondError(w, http.StatusBadRequest, "Invalid user Id")
+		serviceErr := service_errors.ErrIdNotValid
+		response := ApiFailure(serviceErr.Code, serviceErr.Message)
+		utils.RespondJSON(w, serviceErr.HttpStatus, response)
 		return
 	}
 
-	user, err := h.service.GetUser(r.Context(), id)
-	if err != nil {
-		utils.RespondError(w, http.StatusNotFound, err.Error())
+	user, serviceErr := h.service.GetUser(r.Context(), id)
+	if serviceErr != nil {
+		response := ApiFailure(serviceErr.Code, serviceErr.Message)
+		utils.RespondJSON(w, serviceErr.HttpStatus, response)
 		return
 	}
 
-	utils.RespondJSON(w, http.StatusOK, user)
+	response := ApiSuccess(user)
+	utils.RespondJSON(w, http.StatusOK, response)
 }
 
 // ListUsers
@@ -87,7 +93,7 @@ func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) ListUsers(w http.ResponseWriter, r *http.Request) {
 	users, err := h.service.ListUsers(r.Context())
 	if err != nil {
-		utils.RespondError(w, http.StatusInternalServerError, err.Error())
+		utils.RespondJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 	utils.RespondJSON(w, http.StatusOK, users)

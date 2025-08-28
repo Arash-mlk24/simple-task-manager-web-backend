@@ -2,15 +2,20 @@ package service
 
 import (
 	"context"
+	"errors"
 	"github.com/Arash-mlk24/simple-task-manager-web-backend/internal/application/dto"
+	"github.com/Arash-mlk24/simple-task-manager-web-backend/internal/application/service_errors"
 	"github.com/Arash-mlk24/simple-task-manager-web-backend/internal/core/entity"
 	"github.com/Arash-mlk24/simple-task-manager-web-backend/internal/infrastructure/repository"
 	"github.com/Arash-mlk24/simple-task-manager-web-backend/pkg/utils"
+	"github.com/google/uuid"
+	"gorm.io/gorm"
+	"net/http"
 )
 
 type UserService interface {
 	Register(ctx context.Context, req dto.CreateUserRequest) (*dto.UserResponse, error)
-	GetUser(ctx context.Context, id int64) (*dto.UserResponse, error)
+	GetUser(ctx context.Context, id uuid.UUID) (*dto.UserResponse, *service_errors.ServiceError)
 	ListUsers(ctx context.Context) ([]dto.UserResponse, error)
 }
 
@@ -42,12 +47,24 @@ func (service *userService) Register(ctx context.Context, request dto.CreateUser
 	return &dto.UserResponse{Id: savedUser.Id, Username: savedUser.Username, Email: savedUser.Email}, nil
 }
 
-func (service *userService) GetUser(ctx context.Context, id int64) (*dto.UserResponse, error) {
+func (service *userService) GetUser(ctx context.Context, id uuid.UUID) (*dto.UserResponse, *service_errors.ServiceError) {
 	user, err := service.repository.GetByID(ctx, id)
 	if err != nil {
-		return nil, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, &service_errors.ErrUserNotFound
+		}
+
+		return nil, &service_errors.ServiceError{
+			HttpStatus: http.StatusInternalServerError,
+			Message:    "Internal server error",
+		}
 	}
-	return &dto.UserResponse{Id: user.Id, Username: user.Username, Email: user.Email}, nil
+
+	return &dto.UserResponse{
+		Id:       user.Id,
+		Username: user.Username,
+		Email:    user.Email,
+	}, nil
 }
 
 func (service *userService) ListUsers(ctx context.Context) ([]dto.UserResponse, error) {

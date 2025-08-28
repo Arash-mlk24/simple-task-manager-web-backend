@@ -1,5 +1,12 @@
 basePath: /
 definitions:
+  dto.ApiError:
+    properties:
+      code:
+        type: string
+      message:
+        type: string
+    type: object
   dto.CreateUserRequest:
     properties:
       email:
@@ -9,14 +16,22 @@ definitions:
       username:
         type: string
     type: object
+  dto.DocsApiResponse:
+    properties:
+      error:
+        $ref: '#/definitions/dto.ApiError'
+      hasError:
+        type: boolean
+      result: {}
+    type: object
   dto.UserResponse:
     properties:
       email:
         example: arash.mros@gmail.com
         type: string
       id:
-        example: 1
-        type: integer
+        example: 8420e01d-1a8a-471e-9c36-102163aed978
+        type: string
       username:
         example: Arash_mlk24
         type: string
@@ -82,25 +97,29 @@ paths:
     get:
       consumes:
       - application/json
-      description: Get a single user by their ID
+      description: Get a single user by their id
       parameters:
-      - description: User ID
+      - description: User id
         in: path
         name: id
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: ApiResponse wrapping UserResponse
           schema:
-            $ref: '#/definitions/dto.UserResponse'
+            $ref: '#/definitions/dto.DocsApiResponse'
+        "400":
+          description: Invalid UUID
+          schema:
+            $ref: '#/definitions/dto.DocsApiResponse'
         "404":
           description: User not found
           schema:
-            type: string
-      summary: Get user by ID
+            $ref: '#/definitions/dto.DocsApiResponse'
+      summary: Get user by id
       tags:
       - users
 swagger: "2.0"
