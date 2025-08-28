@@ -2,56 +2,46 @@ package repository
 
 import (
 	"context"
-	"database/sql"
 	"github.com/Arash-mlk24/simple-task-manager-web-backend/internal/core/entity"
+	"gorm.io/gorm"
 )
 
 type UserRepository interface {
-	Create(ctx context.Context, user entity.User) (int64, error)
+	Create(ctx context.Context, user *entity.User) (*entity.User, error)
 	GetByID(ctx context.Context, id int64) (*entity.User, error)
 	GetAll(ctx context.Context) ([]entity.User, error)
 }
 
 type userRepository struct {
-	db *sql.DB
+	db *gorm.DB
 }
 
-func NewUserRepository(db *sql.DB) UserRepository {
+func NewUserRepository(db *gorm.DB) UserRepository {
 	return &userRepository{db: db}
 }
 
-func (repository *userRepository) Create(ctx context.Context, user entity.User) (int64, error) {
-	query := `INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING id`
-	var id int64
-	err := repository.db.QueryRowContext(ctx, query, user.Username, user.Email, user.Password).Scan(&id)
-	return id, err
+func (repository *userRepository) Create(ctx context.Context, user *entity.User) (*entity.User, error) {
+	result := repository.db.WithContext(ctx).Create(user)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return user, nil // ID and other DB-generated fields are already populated
 }
 
 func (repository *userRepository) GetByID(ctx context.Context, id int64) (*entity.User, error) {
-	query := `SELECT id, username, email, password FROM users WHERE id = $1`
 	user := &entity.User{}
-	err := repository.db.QueryRowContext(ctx, query, id).Scan(&user.Id, &user.Username, &user.Email, &user.Password)
-	return user, err
+	result := repository.db.WithContext(ctx).First(user, id) // SELECT * FROM users WHERE id = ?
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return user, nil
 }
 
 func (repository *userRepository) GetAll(ctx context.Context) ([]entity.User, error) {
-	query := `SELECT id, username, email, password FROM users`
-
-	rows, err := repository.db.QueryContext(ctx, query)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
 	var users []entity.User
-
-	for rows.Next() {
-		var user entity.User
-		if err := rows.Scan(&user.Id, &user.Username, &user.Email, &user.Password); err != nil {
-			return nil, err
-		}
-		users = append(users, user)
+	result := repository.db.WithContext(ctx).Find(&users) // SELECT * FROM users
+	if result.Error != nil {
+		return nil, result.Error
 	}
-
 	return users, nil
 }

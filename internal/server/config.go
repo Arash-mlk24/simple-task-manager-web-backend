@@ -1,7 +1,7 @@
 package server
 
 import (
-	"database/sql"
+	"github.com/Arash-mlk24/simple-task-manager-web-backend/internal/infrastructure/db"
 	_ "github.com/lib/pq"
 	httpSwagger "github.com/swaggo/http-swagger"
 
@@ -14,20 +14,10 @@ import (
 )
 
 func Config() {
-	connectionString := "postgres://postgres:T@skM@nagerP@stgresDb@127.0.0.1:5432/postgres?sslmode=disable"
-	db, err := sql.Open("postgres", connectionString)
-	if err != nil {
-		panic(err)
-	}
-
-	defer func() {
-		if err := db.Close(); err != nil {
-			log.Printf("failed to close database: %v", err)
-		}
-	}()
+	database := db.Config() // connects and auto-migrates
 
 	router := mux.NewRouter()
-	RegisterRoutes(router, db)
+	RegisterRoutes(router, database)
 
 	// Swagger route
 	router.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)

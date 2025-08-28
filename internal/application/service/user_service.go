@@ -22,17 +22,19 @@ func NewUserService(repository repository.UserRepository) UserService {
 }
 
 func (service *userService) Register(ctx context.Context, request dto.CreateUserRequest) (*dto.UserResponse, error) {
-	user := entity.User{
+	user := &entity.User{
 		Username: request.Username,
 		Email:    request.Email,
 		Password: request.Password,
 		//Password: HashPassword(request.Password), // TODO: hash properly
 	}
-	id, err := service.repository.Create(ctx, user)
+
+	savedUser, err := service.repository.Create(ctx, user)
 	if err != nil {
 		return nil, err
 	}
-	return &dto.UserResponse{Id: id, Username: user.Username, Email: user.Email}, nil
+
+	return &dto.UserResponse{Id: savedUser.Id, Username: savedUser.Username, Email: savedUser.Email}, nil
 }
 
 func (service *userService) GetUser(ctx context.Context, id int64) (*dto.UserResponse, error) {

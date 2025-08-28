@@ -1,8 +1,8 @@
 package entity
 
 type User struct {
-	Id       int64  `db:"id"`
-	Username string `db:"username"`
-	Email    string `db:"email"`
-	Password string `db:"password"`
+	Id       int64  `gorm:"primaryKey" json:"id"`
+	Username string `json:"username"`
+	Email    string `gorm:"unique" json:"email"`
+	Password string `json:"password"`
 }
