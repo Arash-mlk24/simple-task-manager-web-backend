@@ -2,6 +2,7 @@ package db
 
 import (
 	"github.com/Arash-mlk24/simple-task-manager-web-backend/internal/core/entity"
+	"github.com/Arash-mlk24/simple-task-manager-web-backend/internal/infrastructure/seeders"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
@@ -25,6 +26,9 @@ func Config() *gorm.DB {
 	if err != nil {
 		log.Fatal("Failed to migrate database:", err)
 	}
+
+	seeders.SeedRoles(db)
+	seeders.SeedUsers(db)
 
 	return db
 }
