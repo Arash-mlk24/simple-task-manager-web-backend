@@ -13,3 +13,9 @@ var ErrForbidden = ServiceError{
 	Message:    "forbidden",
 	Code:       "FORBIDDEN",
 }
+
+var ErrEmailOrPasswordMismatch = ServiceError{
+	HttpStatus: http.StatusUnauthorized,
+	Message:    "email or password mismatch",
+	Code:       "EMAIL_OR_PASSWORD_MISMATCH",
+}

@@ -15,7 +15,7 @@ type UserHandler struct {
 	service service.UserService
 }
 
-func NewHandler(service service.UserService) *UserHandler {
+func NewUserHandler(service service.UserService) *UserHandler {
 	return &UserHandler{service: service}
 }
 
@@ -64,19 +64,19 @@ func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 	id, err := uuid.Parse(idStr)
 	if err != nil {
 		serviceErr := service_errors.ErrIdNotValid
-		response := ApiFailure(serviceErr.Code, serviceErr.Message)
+		response := utils.ApiFailure(serviceErr.Code, serviceErr.Message)
 		utils.RespondJSON(w, serviceErr.HttpStatus, response)
 		return
 	}
 
 	user, serviceErr := h.service.GetUser(r.Context(), id)
 	if serviceErr != nil {
-		response := ApiFailure(serviceErr.Code, serviceErr.Message)
+		response := utils.ApiFailure(serviceErr.Code, serviceErr.Message)
 		utils.RespondJSON(w, serviceErr.HttpStatus, response)
 		return
 	}
 
-	response := ApiSuccess(user)
+	response := utils.ApiSuccess(user)
 	utils.RespondJSON(w, http.StatusOK, response)
 }
 

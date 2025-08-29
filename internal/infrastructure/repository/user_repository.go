@@ -10,6 +10,7 @@ import (
 type UserRepository interface {
 	Create(ctx context.Context, user *entity.User) (*entity.User, error)
 	GetByID(ctx context.Context, id uuid.UUID) (*entity.User, error)
+	GetByEmail(ctx context.Context, email string) (*entity.User, error)
 	GetAll(ctx context.Context) ([]entity.User, error)
 }
 
@@ -26,12 +27,21 @@ func (repository *userRepository) Create(ctx context.Context, user *entity.User)
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	return user, nil // Id and other DB-generated fields are already populated
+	return user, nil
 }
 
 func (repository *userRepository) GetByID(ctx context.Context, id uuid.UUID) (*entity.User, error) {
 	user := &entity.User{}
-	result := repository.db.WithContext(ctx).First(user, id) // SELECT * FROM users WHERE id = ?
+	result := repository.db.WithContext(ctx).First(user, id)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return user, nil
+}
+
+func (repository *userRepository) GetByEmail(ctx context.Context, email string) (*entity.User, error) {
+	user := &entity.User{}
+	result := repository.db.WithContext(ctx).Where("email = ?", email).First(user)
 	if result.Error != nil {
 		return nil, result.Error
 	}

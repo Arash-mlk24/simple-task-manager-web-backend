@@ -1,4 +1,4 @@
-package handlers
+package utils
 
 import "github.com/Arash-mlk24/simple-task-manager-web-backend/internal/application/dto"
 

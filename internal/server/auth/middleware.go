@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/Arash-mlk24/simple-task-manager-web-backend/internal/application/service_errors"
-	"github.com/Arash-mlk24/simple-task-manager-web-backend/internal/server/handlers"
 	"github.com/Arash-mlk24/simple-task-manager-web-backend/pkg/utils"
 	"github.com/golang-jwt/jwt/v5"
 	"net/http"
@@ -15,7 +14,7 @@ func Middleware(next http.Handler, allowedRoles ...string) http.Handler {
 		tokenStr := r.Header.Get("Authorization")
 		if tokenStr == "" {
 			errUnauthorized := service_errors.ErrUnauthorized
-			response := handlers.ApiFailure(errUnauthorized.Code, errUnauthorized.Message)
+			response := utils.ApiFailure(errUnauthorized.Code, errUnauthorized.Message)
 			utils.RespondJSON(w, errUnauthorized.HttpStatus, response)
 			return
 		}
@@ -32,7 +31,7 @@ func Middleware(next http.Handler, allowedRoles ...string) http.Handler {
 
 		if err != nil || !token.Valid {
 			errUnauthorized := service_errors.ErrUnauthorized
-			response := handlers.ApiFailure(errUnauthorized.Code, errUnauthorized.Message)
+			response := utils.ApiFailure(errUnauthorized.Code, errUnauthorized.Message)
 			utils.RespondJSON(w, errUnauthorized.HttpStatus, response)
 			return
 		}
@@ -49,7 +48,7 @@ func Middleware(next http.Handler, allowedRoles ...string) http.Handler {
 		}
 
 		errForbidden := service_errors.ErrForbidden
-		response := handlers.ApiFailure(errForbidden.Code, errForbidden.Message)
+		response := utils.ApiFailure(errForbidden.Code, errForbidden.Message)
 		utils.RespondJSON(w, errForbidden.HttpStatus, response)
 	})
 }

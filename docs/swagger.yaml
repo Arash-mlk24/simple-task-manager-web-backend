@@ -24,6 +24,19 @@ definitions:
         type: boolean
       result: {}
     type: object
+  dto.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  dto.LoginResponse:
+    properties:
+      access_token:
+        example: '...'
+        type: string
+    type: object
   dto.UserResponse:
     properties:
       email:
@@ -43,6 +56,36 @@ info:
   title: Swagger Example API (net/http)
   version: "1.0"
 paths:
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Gets token for the user
+      parameters:
+      - description: User login data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.LoginResponse'
+        "400":
+          description: Invalid request
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Get token
+      tags:
+      - auth
   /users:
     get:
       consumes:
