@@ -20,11 +20,18 @@ type UserService interface {
 }
 
 type userService struct {
-	repository repository.UserRepository
+	repository     repository.UserRepository
+	roleRepository repository.RoleRepository
 }
 
-func NewUserService(repository repository.UserRepository) UserService {
-	return &userService{repository: repository}
+func NewUserService(
+	repository repository.UserRepository,
+	roleRepository repository.RoleRepository,
+) UserService {
+	return &userService{
+		repository:     repository,
+		roleRepository: roleRepository,
+	}
 }
 
 func (service *userService) Register(ctx context.Context, request dto.CreateUserRequest) (*dto.UserResponse, error) {

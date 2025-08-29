@@ -11,10 +11,12 @@ import (
 
 func RegisterRoutes(router *mux.Router, db *gorm.DB) {
 	userRepository := repository.NewUserRepository(db)
-	userService := service.NewUserService(userRepository)
-	userHandler := handlers.NewUserHandler(userService)
+	roleRepository := repository.NewRoleRepository(db)
 
+	userService := service.NewUserService(userRepository, roleRepository)
 	authService := service.NewAuthService(userRepository)
+
+	userHandler := handlers.NewUserHandler(userService)
 	authHandler := handlers.NewAuthHandler(authService)
 
 	routes.RegisterUserRoutes(router, userHandler)
