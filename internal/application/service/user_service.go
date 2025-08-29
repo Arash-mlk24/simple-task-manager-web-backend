@@ -7,6 +7,7 @@ import (
 	"github.com/Arash-mlk24/simple-task-manager-web-backend/internal/application/service_errors"
 	"github.com/Arash-mlk24/simple-task-manager-web-backend/internal/core/entity"
 	"github.com/Arash-mlk24/simple-task-manager-web-backend/internal/infrastructure/repository"
+	"github.com/Arash-mlk24/simple-task-manager-web-backend/internal/server/auth"
 	"github.com/Arash-mlk24/simple-task-manager-web-backend/pkg/utils"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -14,7 +15,7 @@ import (
 )
 
 type UserService interface {
-	Register(ctx context.Context, req dto.CreateUserRequest) (*dto.UserResponse, error)
+	Register(ctx context.Context, req dto.CreateUserRequest) (*dto.UserResponse, *service_errors.ServiceError)
 	GetUser(ctx context.Context, id uuid.UUID) (*dto.UserResponse, *service_errors.ServiceError)
 	ListUsers(ctx context.Context) ([]dto.UserResponse, error)
 }
@@ -34,21 +35,27 @@ func NewUserService(
 	}
 }
 
-func (service *userService) Register(ctx context.Context, request dto.CreateUserRequest) (*dto.UserResponse, error) {
+func (service *userService) Register(ctx context.Context, request dto.CreateUserRequest) (*dto.UserResponse, *service_errors.ServiceError) {
 	hashedPassword, err := utils.HashPassword(request.Password)
 	if err != nil {
-		return nil, err
+		return nil, &service_errors.ErrInternal
+	}
+
+	userRole, err := service.roleRepository.GetByTitle(ctx, auth.RoleUser)
+	if err != nil {
+		return nil, &service_errors.ErrInternal
 	}
 
 	user := &entity.User{
 		Username: request.Username,
 		Email:    request.Email,
 		Password: hashedPassword,
+		Roles:    []entity.Role{*userRole},
 	}
 
 	savedUser, err := service.repository.Create(ctx, user)
 	if err != nil {
-		return nil, err
+		return nil, &service_errors.ErrInternal
 	}
 
 	return &dto.UserResponse{Id: savedUser.Id, Username: savedUser.Username, Email: savedUser.Email}, nil

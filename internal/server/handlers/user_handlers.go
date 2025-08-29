@@ -34,17 +34,21 @@ func NewUserHandler(service service.UserService) *UserHandler {
 func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 	var req dto.CreateUserRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		utils.RespondJSON(w, http.StatusBadRequest, err.Error())
+		serviceErr := service_errors.ErrInvalidData
+		response := utils.ApiFailure(serviceErr.Code, serviceErr.Message)
+		utils.RespondJSON(w, serviceErr.HttpStatus, response)
 		return
 	}
 
 	user, err := h.service.Register(r.Context(), req)
 	if err != nil {
-		utils.RespondJSON(w, http.StatusInternalServerError, err.Error())
+		response := utils.ApiFailure(err.Code, err.Message)
+		utils.RespondJSON(w, err.HttpStatus, response)
 		return
 	}
 
-	utils.RespondJSON(w, http.StatusOK, user)
+	response := utils.ApiSuccess(user)
+	utils.RespondJSON(w, http.StatusOK, response)
 }
 
 // GetUser

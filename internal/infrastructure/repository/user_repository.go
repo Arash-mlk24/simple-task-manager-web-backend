@@ -41,7 +41,7 @@ func (repository *userRepository) GetByID(ctx context.Context, id uuid.UUID) (*e
 
 func (repository *userRepository) GetByEmail(ctx context.Context, email string) (*entity.User, error) {
 	user := &entity.User{}
-	result := repository.db.WithContext(ctx).Where("email = ?", email).First(user)
+	result := repository.db.WithContext(ctx).Where("email = ?", email).Preload("Roles").First(user)
 	if result.Error != nil {
 		return nil, result.Error
 	}
